@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+            border-bottom: 2px solid #f1f1f1;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message.bot {
+            text-align: left;
+        }
+
+        .user-msg {
+            display: inline-block;
+            background-color: #d1f0ff;
+            padding: 8px 12px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .bot-msg {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h1>Chat with the AI Bot</h1>
+        <div class="chat-box" id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        var context = '';  // Initialize the conversation context
+
+        function sendMessage() {
+            var user_input = document.getElementById('user-input').value;
+            if (user_input.trim() === '') return;  // Prevent empty messages
+
+            // Send the user input and context to the server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'user_input=' + encodeURIComponent(user_input) + '&context=' + encodeURIComponent(context)
+            })
+            .then(response => response.json())
+            .then(data => {
+                var chatBox = document.getElementById('chat-box');
+                
+                // Append user message
+                chatBox.innerHTML += `<div class="chat-message user"><span class="user-msg">${user_input}</span></div>`;
+                
+                // Append bot response
+                chatBox.innerHTML += `<div class="chat-message bot"><span class="bot-msg">${data.response}</span></div>`;
+
+                // Scroll to the bottom of the chat box
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Update the context with the new conversation
+                context = data.context;
+            });
+
+            // Clear the input field
+            document.getElementById('user-input').value = '';
+        }
+    </script>
+
+</body>
+</html>
